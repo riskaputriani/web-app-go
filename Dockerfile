@@ -15,26 +15,26 @@
 # specific language governing permissions and limitations
 # under the License.
 
-FROM golang:1.22-alpine AS build
+FROM golang:1.22.4-alpine AS build-env
 
 WORKDIR /app
 COPY go.mod ./
 COPY go.sum ./
 RUN go mod download
-COPY . .
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o /app/web-app .
+RUN addgroup -g 10014 choreo \
+  && adduser --disabled-password --no-create-home --uid 10014 --ingroup choreo choreouser
 
-FROM alpine:3.20
+COPY . .
+ENV CGO_ENABLED=0 GOOS=linux GOARCH=amd64
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o /go/bin/app -buildvcs=false
+
+FROM alpine
 RUN apk add --no-cache ca-certificates
 WORKDIR /app
-COPY --from=build /app/web-app ./web-app
-COPY --from=build /app/templates ./templates
-
-# Create a user with a known UID/GID (10014) within the range 10000-20000 for Choreo.
-RUN adduser -D -H -s /sbin/nologin -u 10014 choreo \
-  && chown -R 10014:10014 /app
+COPY --from=build-env /go/bin/app /go/bin/app
+COPY --from=build-env /app/templates ./templates
 
 USER 10014
 ENV PORT=8080
 EXPOSE 8080
-ENTRYPOINT ["/app/web-app"]
+ENTRYPOINT ["/go/bin/app"]
