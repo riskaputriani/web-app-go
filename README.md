@@ -4,6 +4,7 @@ A modern, fast web application for extracting comprehensive metadata from images
 
 [![Go Version](https://img.shields.io/badge/Go-1.23+-00ADD8?style=flat&logo=go)](https://go.dev/)
 [![Fiber](https://img.shields.io/badge/Fiber-v2.52.5-00ACD7?style=flat)](https://gofiber.io/)
+[![CI](https://github.com/ahrdadan/image-metadata-viewer/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/ahrdadan/image-metadata-viewer/actions/workflows/ci-cd.yml)
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 
 ## ✨ Features
