@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{{.Title}}</title>
+  <style>
+    :root {
+      --bg: #f5f3f1;
+      --panel: #ffffff;
+      --ink: #1f1a17;
+      --muted: #6b5b55;
+      --accent: #2d7d6b;
+      --accent-dark: #205a4b;
+      --shadow: 0 16px 36px rgba(19, 16, 15, 0.15);
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Trebuchet MS", "Gill Sans", "Verdana", sans-serif;
+      color: var(--ink);
+      background: linear-gradient(120deg, #f6f0ea, #e7efe9);
+      padding: 32px 18px 60px;
+    }
+    a {
+      color: var(--accent);
+    }
+    header {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .title {
+      font-size: clamp(1.6rem, 2.4vw, 2.2rem);
+      margin: 0;
+    }
+    .container {
+      width: min(1040px, 100%);
+      margin: 0 auto;
+      display: grid;
+      gap: 18px;
+    }
+    .panel {
+      background: var(--panel);
+      border-radius: 20px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+    .image-frame {
+      display: grid;
+      place-items: center;
+      background: #f2f2f2;
+      border-radius: 16px;
+      padding: 18px;
+      overflow: hidden;
+    }
+    img.preview {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 24px rgba(0, 0, 0, 0.12);
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.98rem;
+    }
+    td {
+      padding: 10px 0;
+      border-bottom: 1px solid #f0e9e4;
+      vertical-align: top;
+    }
+    td:first-child {
+      color: var(--muted);
+      width: 180px;
+    }
+    .note {
+      margin-top: 12px;
+      font-size: 0.92rem;
+      color: var(--muted);
+    }
+    .error {
+      background: #ffe6df;
+      color: #7c1b0b;
+      padding: 12px 16px;
+      border-radius: 12px;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--accent);
+      color: white;
+      border-radius: 999px;
+      text-decoration: none;
+      font-weight: 600;
+    }
+    .button:hover {
+      background: var(--accent-dark);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1 class="title">Image preview</h1>
+      <div class="actions">
+        <a class="button" href="/">New URL</a>
+        {{if .DisplayURL}}
+        <a class="button" href="{{.DisplayURL}}" target="_blank" rel="noreferrer">Open original</a>
+        {{end}}
+      </div>
+    </header>
+
+    {{if .Error}}
+    <div class="panel error">{{.Error}}</div>
+    {{end}}
+
+    {{if .EmbedURL}}
+    <section class="panel">
+      <div class="image-frame">
+        <img class="preview" src="{{.EmbedURL}}" alt="Embedded image">
+      </div>
+    </section>
+    {{end}}
+
+    <section class="panel">
+      <table>
+        <tr>
+          <td>Requested URL</td>
+          <td>{{.InputURL}}</td>
+        </tr>
+        {{if .Info}}
+        <tr>
+          <td>Status</td>
+          <td>{{.Info.Status}}</td>
+        </tr>
+        {{if .Info.FinalURL}}
+        <tr>
+          <td>Final URL</td>
+          <td>{{.Info.FinalURL}}</td>
+        </tr>
+        {{end}}
+        <tr>
+          <td>Fetch time</td>
+          <td>{{.Info.Duration}}</td>
+        </tr>
+        <tr>
+          <td>Content-Type</td>
+          <td>{{if .Info.ContentType}}{{.Info.ContentType}}{{else}}unknown{{end}}</td>
+        </tr>
+        <tr>
+          <td>Content-Length</td>
+          <td>{{if ge .Info.ContentLength 0}}{{.Info.ContentLength}} bytes ({{humanBytes .Info.ContentLength}}){{else}}unknown{{end}}</td>
+        </tr>
+        <tr>
+          <td>Downloaded</td>
+          <td>{{.Info.DownloadedBytes}} bytes ({{humanBytes .Info.DownloadedBytes}}){{if .Info.Truncated}} - truncated at {{.MaxBytesMB}} MB{{end}}</td>
+        </tr>
+        <tr>
+          <td>Format</td>
+          <td>{{if .Info.Format}}{{.Info.Format}}{{else}}unknown{{end}}</td>
+        </tr>
+        <tr>
+          <td>Dimensions</td>
+          <td>{{if .Info.HasDimensions}}{{.Info.Width}} x {{.Info.Height}} px{{else}}unknown{{end}}</td>
+        </tr>
+        {{if .Info.DecodeError}}
+        <tr>
+          <td>Decode error</td>
+          <td>{{.Info.DecodeError}}</td>
+        </tr>
+        {{end}}
+        {{end}}
+      </table>
+      <p class="note">Tip: Direct paths like <code>/https:/example.com/image.jpg</code> are normalized automatically. Use the form for URLs with query strings.</p>
+    </section>
+  </div>
+</body>
+</html>
