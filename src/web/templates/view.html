@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{.Title}} - Image Metadata Viewer</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <div class="header">
+      <h1>{{.Title}}</h1>
+      <a href="{{.BaseURL}}" class="back-link">← Back to Home</a>
+    </div>
+
+    {{if .Error}}
+    <div class="single-column">
+      <div class="error-box"><strong>Error:</strong> {{.Error}}</div>
+    </div>
+    {{end}}
+
+    <div class="image-grid">
+      {{range .Images}}
+      <div class="image-card">
+        {{if .Error}}
+        <div class="image-error">
+          <strong>❌ Failed to load image</strong>
+          <p>{{.Error}}</p>
+        </div>
+        {{else if .Metadata}}
+        <img
+          src="{{.EmbedURL}}"
+          alt="{{.InputURL}}"
+          class="image-preview"
+          loading="lazy"
+        />
+        {{end}}
+
+        <div class="image-info">
+          <div class="info-header">
+            <div class="info-title">
+              {{if .Metadata}}{{.Metadata.FileName}}{{else}}{{.InputURL}}{{end}}
+            </div>
+            {{if .DisplayURL}}
+            <div class="info-url">{{.DisplayURL}}</div>
+            {{end}}
+          </div>
+
+          {{if .Metadata}}
+          <div class="metadata-grid">
+            <!-- Basic File Info -->
+            {{if .Metadata.FileSize}}
+            <div class="metadata-item">
+              <span class="metadata-label">File Size:</span>
+              <span class="metadata-value"
+                >{{.Metadata.FileSizeHuman}}
+                <span class="badge badge-success"
+                  >{{.Metadata.FileSize}} bytes</span
+                >
+              </span>
+            </div>
+            {{end}} {{if .Metadata.FileType}}
+            <div class="metadata-item">
+              <span class="metadata-label">File Type:</span>
+              <span class="metadata-value"
+                >{{.Metadata.FileType}} {{if .Metadata.FileTypeExtension}}
+                <span class="badge badge-success"
+                  >.{{.Metadata.FileTypeExtension}}</span
+                >
+                {{end}}
+              </span>
+            </div>
+            {{end}} {{if .Metadata.MIMEType}}
+            <div class="metadata-item">
+              <span class="metadata-label">MIME Type:</span>
+              <span class="metadata-value">{{.Metadata.MIMEType}}</span>
+            </div>
+            {{end}}
+
+            <!-- Dimensions -->
+            {{if .Metadata.Width}}
+            <div class="metadata-item">
+              <span class="metadata-label">Dimensions:</span>
+              <span class="metadata-value">
+                {{.Metadata.Width}} × {{.Metadata.Height}} px {{if
+                .Metadata.Megapixels}}
+                <span class="badge badge-success"
+                  >{{printf "%.2f" .Metadata.Megapixels}} MP</span
+                >
+                {{end}}
+              </span>
+            </div>
+            {{end}} {{if .Metadata.AspectRatio}}
+            <div class="metadata-item">
+              <span class="metadata-label">Aspect Ratio:</span>
+              <span class="metadata-value">{{.Metadata.AspectRatio}}</span>
+            </div>
+            {{end}}
+
+            <!-- Color Information -->
+            {{if .Metadata.ColorSpace}}
+            <div class="metadata-section">
+              <h3>Color Information</h3>
+              <div class="metadata-grid">
+                <div class="metadata-item">
+                  <span class="metadata-label">Color Space:</span>
+                  <span class="metadata-value">{{.Metadata.ColorSpace}}</span>
+                </div>
+                {{if .Metadata.ColorMode}}
+                <div class="metadata-item">
+                  <span class="metadata-label">Color Mode:</span>
+                  <span class="metadata-value">{{.Metadata.ColorMode}}</span>
+                </div>
+                {{end}} {{if .Metadata.ColorComponents}}
+                <div class="metadata-item">
+                  <span class="metadata-label">Color Components:</span>
+                  <span class="metadata-value"
+                    >{{.Metadata.ColorComponents}}</span
+                  >
+                </div>
+                {{end}}
+              </div>
+            </div>
+            {{end}}
+
+            <!-- EXIF Data -->
+            {{if .Metadata.Orientation}}
+            <div class="metadata-section">
+              <h3>EXIF Data</h3>
+              <div class="metadata-grid">
+                <div class="metadata-item">
+                  <span class="metadata-label">Orientation:</span>
+                  <span class="metadata-value">{{.Metadata.Orientation}}</span>
+                </div>
+                {{if .Metadata.XResolution}}
+                <div class="metadata-item">
+                  <span class="metadata-label">Resolution:</span>
+                  <span class="metadata-value"
+                    >{{.Metadata.XResolution}} × {{.Metadata.YResolution}}
+                    {{.Metadata.ResolutionUnit}}</span
+                  >
+                </div>
+                {{end}} {{if .Metadata.Software}}
+                <div class="metadata-item">
+                  <span class="metadata-label">Software:</span>
+                  <span class="metadata-value">{{.Metadata.Software}}</span>
+                </div>
+                {{end}} {{if .Metadata.CreateDate}}
+                <div class="metadata-item">
+                  <span class="metadata-label">Created:</span>
+                  <span class="metadata-value">{{.Metadata.CreateDate}}</span>
+                </div>
+                {{end}} {{if .Metadata.ModifyDate}}
+                <div class="metadata-item">
+                  <span class="metadata-label">Modified:</span>
+                  <span class="metadata-value">{{.Metadata.ModifyDate}}</span>
+                </div>
+                {{end}}
+              </div>
+            </div>
+            {{end}}
+
+            <!-- Remote URL Info -->
+            {{if .Metadata.Status}}
+            <div class="metadata-section">
+              <h3>Remote Source Info</h3>
+              <div class="metadata-grid">
+                <div class="metadata-item">
+                  <span class="metadata-label">HTTP Status:</span>
+                  <span class="metadata-value">{{.Metadata.Status}}</span>
+                </div>
+                {{if .Metadata.Duration}}
+                <div class="metadata-item">
+                  <span class="metadata-label">Download Time:</span>
+                  <span class="metadata-value">{{.Metadata.Duration}}</span>
+                </div>
+                {{end}} {{if .Metadata.LastModified}}
+                <div class="metadata-item">
+                  <span class="metadata-label">Last Modified:</span>
+                  <span class="metadata-value">{{.Metadata.LastModified}}</span>
+                </div>
+                {{end}} {{if .Metadata.Truncated}}
+                <div class="metadata-item">
+                  <span class="metadata-label">Note:</span>
+                  <span class="metadata-value">
+                    <span class="badge badge-warning"
+                      >Truncated at {{printf "%.0f" $.MaxBytesMB}} MB</span
+                    >
+                  </span>
+                </div>
+                {{end}}
+              </div>
+            </div>
+            {{end}}
+
+            <!-- Source -->
+            <div class="metadata-item">
+              <span class="metadata-label">Source:</span>
+              <span class="metadata-value">
+                <span class="badge badge-success">{{.Metadata.Source}}</span>
+              </span>
+            </div>
+          </div>
+
+          {{if .Metadata.DecodeError}}
+          <div class="metadata-section">
+            <div class="error-box">
+              <strong>Decode Warning:</strong> {{.Metadata.DecodeError}}
+            </div>
+          </div>
+          {{end}} {{end}}
+        </div>
+      </div>
+      {{end}}
+    </div>
+  </body>
+</html>

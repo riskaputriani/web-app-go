@@ -1,0 +1,20 @@
+{
+  "description": "🖼️ Modern Go web application for extracting comprehensive image metadata. Built with Fiber framework, supporting URL fetching, file uploads, and REST API.",
+  "topics": [
+    "go",
+    "golang",
+    "fiber",
+    "image-processing",
+    "metadata",
+    "exif",
+    "web-application",
+    "rest-api",
+    "image-metadata",
+    "docker",
+    "metadata-extractor",
+    "image-analyzer",
+    "exif-reader",
+    "golang-app",
+    "fiber-framework"
+  ]
+}

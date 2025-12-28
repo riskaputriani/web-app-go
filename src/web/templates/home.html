@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Image Metadata Viewer</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <div
+      style="
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+      "
+    >
+      <div class="container">
+        <h1>🖼️ Image Metadata Viewer</h1>
+        <p class="subtitle">
+          Extract comprehensive metadata from images - URLs or file uploads
+        </p>
+
+        <div class="tabs">
+          <button class="tab active" onclick="switchTab('url')">🔗 URL</button>
+          <button class="tab" onclick="switchTab('multi-url')">
+            📋 Multiple URLs
+          </button>
+          <button class="tab" onclick="switchTab('upload')">📤 Upload</button>
+        </div>
+
+        <!-- Single URL Tab -->
+        <div id="url-tab" class="tab-content active">
+          <form action="/go" method="GET">
+            <div class="form-group">
+              <label for="url">Image URL</label>
+              <input
+                type="text"
+                id="url"
+                name="url"
+                placeholder="https://example.com/image.jpg"
+                required
+              />
+            </div>
+            <button type="submit" class="btn">View Metadata</button>
+          </form>
+        </div>
+
+        <!-- Multiple URLs Tab -->
+        <div id="multi-url-tab" class="tab-content">
+          <form action="/go" method="GET">
+            <div class="form-group">
+              <label for="multi-url">Image URLs (one per line)</label>
+              <textarea
+                id="multi-url"
+                name="url"
+                placeholder="https://example.com/image1.jpg&#10;https://example.com/image2.jpg&#10;https://example.com/image3.jpg"
+                required
+              ></textarea>
+            </div>
+            <button type="submit" class="btn">Process Batch</button>
+          </form>
+        </div>
+
+        <!-- Upload Tab -->
+        <div id="upload-tab" class="tab-content">
+          <form
+            action="/upload"
+            method="POST"
+            enctype="multipart/form-data"
+            id="upload-form"
+          >
+            <div class="form-group">
+              <div class="upload-area" id="upload-area">
+                <div class="upload-icon">☁️</div>
+                <div class="upload-text">Drag & Drop images here</div>
+                <div class="upload-hint">
+                  or click to select files (max 20MB each)
+                </div>
+                <input
+                  type="file"
+                  id="file-input"
+                  name="files"
+                  accept="image/*"
+                  multiple
+                />
+              </div>
+              <div class="file-list" id="file-list"></div>
+            </div>
+            <button type="submit" class="btn" id="upload-btn">
+              Upload & View Metadata
+            </button>
+          </form>
+        </div>
+
+        <div class="features">
+          <h2>Features</h2>
+          <div class="feature-list">
+            <div class="feature">
+              <span class="feature-icon">📊</span>
+              <span class="feature-text">Comprehensive EXIF data</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">🎨</span>
+              <span class="feature-text">Color space info</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">📐</span>
+              <span class="feature-text">Dimensions & aspect ratio</span>
+            </div>
+            <div class="feature">
+              <span class="feature-icon">🔒</span>
+              <span class="feature-text">No data storage</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="api-info">
+          <h3>REST API Available</h3>
+          <p>
+            <strong>GET:</strong>
+            <code>{{.BaseURL}}/api/https://example.com/image.jpg</code>
+          </p>
+          <p>
+            <strong>POST:</strong> <code>{{.BaseURL}}/api</code> (JSON with URLs
+            or multipart files)
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+  </body>
+</html>
