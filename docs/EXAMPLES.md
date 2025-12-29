@@ -280,6 +280,7 @@ curl -X POST http://localhost:8080/api \
 - `width`: Width in pixels
 - `height`: Height in pixels
 - `aspectRatio`: Width/height ratio (3 decimal places)
+- `aspectRatioFraction`: Simplified ratio (e.g., "16:9")
 - `megapixels`: Total megapixels
 
 ### Color Information (if available)

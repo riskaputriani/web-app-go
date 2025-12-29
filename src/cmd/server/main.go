@@ -42,21 +42,24 @@ func main() {
 
 	// Initialize services
 	imageService := services.NewImageService()
+	blobStore := services.NewBlobStore(time.Hour)
 
 	// Initialize handlers
-	webHandler := handlers.NewWebHandler(imageService)
+	webHandler := handlers.NewWebHandler(imageService, blobStore)
 	apiHandler := handlers.NewAPIHandler(imageService)
-
-	// Web routes
-	app.Get("/", webHandler.HandleHome)
-	app.Get("/go", webHandler.HandleForm)
-	app.Post("/upload", webHandler.HandleUpload)
-	app.Get("/*", webHandler.HandleView)
 
 	// API routes
 	api := app.Group("/api")
 	api.Get("/*", apiHandler.HandleGetMetadata)
 	api.Post("/", apiHandler.HandlePostMetadata)
+
+	// Web routes
+	app.Get("/", webHandler.HandleHome)
+	app.Get("/docs", webHandler.HandleDocs)
+	app.Get("/go", webHandler.HandleForm)
+	app.Post("/upload", webHandler.HandleUpload)
+	app.Get("/blob/:id", webHandler.HandleBlob)
+	app.Get("/*", webHandler.HandleView)
 
 	// Get port from environment or use default
 	port := getPort()

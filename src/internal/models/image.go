@@ -15,10 +15,11 @@ type ImageMetadata struct {
 	UploadedAt        time.Time `json:"uploadedAt,omitempty"`
 
 	// Image dimensions
-	Width       int     `json:"width"`
-	Height      int     `json:"height"`
-	AspectRatio string  `json:"aspectRatio"`
-	Megapixels  float64 `json:"megapixels"`
+	Width                int     `json:"width"`
+	Height               int     `json:"height"`
+	AspectRatio          string  `json:"aspectRatio"`
+	AspectRatioFraction  string  `json:"aspectRatioFraction,omitempty"`
+	Megapixels           float64 `json:"megapixels"`
 
 	// Color information
 	ColorSpace      string `json:"colorSpace,omitempty"`

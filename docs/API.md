@@ -196,6 +196,7 @@ curl -X POST http://localhost:8080/api \
 | `width`             | int     | Image width in pixels          |
 | `height`            | int     | Image height in pixels         |
 | `aspectRatio`       | string  | Width/height ratio             |
+| `aspectRatioFraction` | string | Simplified ratio (e.g., 16:9) |
 | `megapixels`        | float64 | Total megapixels               |
 | `colorSpace`        | string  | Color space (sRGB, etc.)       |
 | `colorMode`         | string  | Color mode (RGB, etc.)         |

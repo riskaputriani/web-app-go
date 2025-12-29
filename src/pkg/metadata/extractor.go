@@ -40,6 +40,7 @@ func ExtractMetadata(data []byte, contentType, fileName string) *models.ImageMet
 	meta.Width = cfg.Width
 	meta.Height = cfg.Height
 	meta.AspectRatio = utils.CalculateAspectRatio(cfg.Width, cfg.Height)
+	meta.AspectRatioFraction = utils.CalculateAspectRatioFraction(cfg.Width, cfg.Height)
 	meta.Megapixels = utils.CalculateMegapixels(cfg.Width, cfg.Height)
 	meta.FileType = strings.ToUpper(format)
 

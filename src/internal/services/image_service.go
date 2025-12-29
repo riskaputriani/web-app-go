@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"net/url"
+	"os"
 	"time"
 
 	"github.com/ahrdadan/image-metadata-viewer/src/internal/models"
@@ -88,14 +89,21 @@ func (s *ImageService) ProcessRemoteURL(ctx context.Context, imageURL string) *m
 	meta.ContentLength = resp.ContentLength
 	meta.LastModified = resp.Header.Get("Last-Modified")
 
-	// Read limited data
-	body, truncated, err := readLimited(resp.Body, MaxImageBytes)
+	// Download to temp file then read for metadata extraction
+	tempPath, downloadedBytes, truncated, err := downloadToTempFile(resp.Body, MaxImageBytes)
+	if err != nil {
+		meta.FetchError = fmt.Sprintf("read error: %v", err)
+		return meta
+	}
+	defer os.Remove(tempPath)
+
+	body, err := os.ReadFile(tempPath)
 	if err != nil {
 		meta.FetchError = fmt.Sprintf("read error: %v", err)
 		return meta
 	}
 
-	meta.DownloadedBytes = int64(len(body))
+	meta.DownloadedBytes = downloadedBytes
 	meta.Truncated = truncated
 
 	if len(body) == 0 {
@@ -130,21 +138,32 @@ func (s *ImageService) ProcessMultipleURLs(ctx context.Context, urls []string) [
 	return results
 }
 
-// readLimited reads up to maxBytes to avoid unbounded downloads
-func readLimited(r io.Reader, maxBytes int64) ([]byte, bool, error) {
+// downloadToTempFile streams data to a temp file with size limits and returns its path.
+func downloadToTempFile(r io.Reader, maxBytes int64) (string, int64, bool, error) {
 	if maxBytes <= 0 {
-		return nil, false, nil
+		return "", 0, false, fmt.Errorf("invalid maxBytes")
 	}
+
+	tmp, err := os.CreateTemp("", "image-metadata-*")
+	if err != nil {
+		return "", 0, false, err
+	}
+	defer tmp.Close()
 
 	limited := io.LimitReader(r, maxBytes+1)
-	data, err := io.ReadAll(limited)
+	written, err := io.Copy(tmp, limited)
 	if err != nil {
-		return nil, false, err
+		return tmp.Name(), written, false, err
 	}
 
-	if int64(len(data)) > maxBytes {
-		return data[:maxBytes], true, nil
+	truncated := false
+	if written > maxBytes {
+		truncated = true
+		if err := tmp.Truncate(maxBytes); err != nil {
+			return tmp.Name(), written, truncated, err
+		}
+		written = maxBytes
 	}
 
-	return data, false, nil
+	return tmp.Name(), written, truncated, nil
 }

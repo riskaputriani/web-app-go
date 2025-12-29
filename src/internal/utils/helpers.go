@@ -84,7 +84,29 @@ func CalculateAspectRatio(width, height int) string {
 	return fmt.Sprintf("%.3f", ratio)
 }
 
+// CalculateAspectRatioFraction returns a simplified width:height ratio.
+func CalculateAspectRatioFraction(width, height int) string {
+	if width <= 0 || height <= 0 {
+		return ""
+	}
+	divisor := gcd(width, height)
+	return fmt.Sprintf("%d:%d", width/divisor, height/divisor)
+}
+
 // CalculateMegapixels calculates megapixels from dimensions
 func CalculateMegapixels(width, height int) float64 {
 	return float64(width*height) / 1000000.0
+}
+
+func gcd(a, b int) int {
+	for b != 0 {
+		a, b = b, a%b
+	}
+	if a < 0 {
+		return -a
+	}
+	if a == 0 {
+		return 1
+	}
+	return a
 }

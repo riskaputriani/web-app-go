@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>API Docs - Image Metadata Viewer</title>
+    <link rel="stylesheet" href="/static/css/style.css" />
+  </head>
+  <body>
+    <div class="docs-wrap">
+      <div class="header">
+        <h1>API Docs</h1>
+        <div class="header-actions">
+          <a href="/" class="back-link">Back to Home</a>
+          <a href="#try" class="back-link">Try API</a>
+        </div>
+      </div>
+
+      <div class="docs-container">
+        <section class="docs-hero">
+          <div>
+            <h2>Overview</h2>
+            <p>
+              The Image Metadata Viewer API extracts metadata from remote image
+              URLs and uploads. Use GET for quick single lookups or POST for
+              batch requests and file uploads.
+            </p>
+            <div class="pill-row">
+              <span class="pill">GET /api/{url}</span>
+              <span class="pill">POST /api</span>
+            </div>
+          </div>
+          <div class="docs-card">
+            <h3>Base URL</h3>
+            <div class="code-inline">{{.BaseURL}}/api</div>
+            <p class="note">
+              Max image size: 20 MB. Timeout: 15s. Supported formats: JPG, PNG,
+              GIF, BMP, TIFF, WebP.
+            </p>
+          </div>
+        </section>
+
+        <section class="docs-section" id="endpoints">
+          <h2>Endpoints</h2>
+          <div class="docs-grid">
+            <div class="docs-card">
+              <h3>GET /api/{url}</h3>
+              <p>Fetch metadata for a single remote image URL.</p>
+              <pre class="code-block">curl "{{.BaseURL}}/api/https://example.com/image.jpg"</pre>
+              <p class="note">
+                Tip: Use POST if the URL contains query or hash fragments.
+              </p>
+            </div>
+            <div class="docs-card">
+              <h3>POST /api</h3>
+              <p>Send JSON with multiple URLs or upload files.</p>
+              <pre class="code-block">curl -X POST {{.BaseURL}}/api \
+  -H "Content-Type: application/json" \
+  -d '{"urls":["https://example.com/a.jpg","https://example.com/b.png"]}'</pre>
+              <pre class="code-block">curl -X POST {{.BaseURL}}/api \
+  -F "files=@image1.jpg" \
+  -F "files=@image2.png"</pre>
+            </div>
+          </div>
+        </section>
+
+        <section class="docs-section" id="samples">
+          <h2>Sample Response</h2>
+          <pre class="code-block">{
+  "success": true,
+  "data": [
+    {
+      "fileName": "image.jpg",
+      "fileSize": 164000,
+      "fileSizeHuman": "160.2 KiB",
+      "fileType": "JPEG",
+      "fileTypeExtension": "jpg",
+      "mimeType": "image/jpeg",
+      "width": 1920,
+      "height": 1080,
+      "aspectRatio": "1.778",
+      "aspectRatioFraction": "16:9",
+      "megapixels": 2.0736,
+      "source": "remote",
+      "status": "200 OK",
+      "duration": "156ms"
+    }
+  ]
+}</pre>
+          <div class="docs-grid">
+            <div class="docs-card">
+              <h3>Error Response</h3>
+              <pre class="code-block">{
+  "success": false,
+  "error": "Invalid URL format"
+}</pre>
+            </div>
+            <div class="docs-card">
+              <h3>Fields</h3>
+              <ul class="docs-list">
+                <li>Dimensions: width, height, aspectRatio, aspectRatioFraction</li>
+                <li>File: fileName, fileSize, fileType, mimeType</li>
+                <li>Remote: status, finalURL, duration, lastModified</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="docs-section" id="try">
+          <h2>Try the API</h2>
+          <div class="try-grid">
+            <div class="try-card">
+              <h3>Try GET</h3>
+              <p>Paste a simple image URL without query/hash.</p>
+              <form id="try-get-form" class="try-form">
+                <label for="try-get-url">Image URL</label>
+                <input
+                  type="text"
+                  id="try-get-url"
+                  placeholder="https://example.com/image.jpg"
+                  required
+                />
+                <button type="submit" class="btn">Send GET</button>
+              </form>
+            </div>
+            <div class="try-card">
+              <h3>Try POST</h3>
+              <p>Send one URL per line. Works with any URL format.</p>
+              <form id="try-post-form" class="try-form">
+                <label for="try-post-urls">Image URLs</label>
+                <textarea
+                  id="try-post-urls"
+                  placeholder="https://example.com/a.jpg&#10;https://example.com/b.png"
+                  required
+                ></textarea>
+                <button type="submit" class="btn">Send POST</button>
+              </form>
+            </div>
+          </div>
+          <div class="response-card">
+            <h3>Response</h3>
+            <pre class="response-box" id="try-response"></pre>
+          </div>
+        </section>
+      </div>
+    </div>
+
+    <script src="/static/js/app.js"></script>
+  </body>
+</html>

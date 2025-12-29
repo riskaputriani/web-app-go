@@ -9,7 +9,10 @@
   <body>
     <div class="header">
       <h1>{{.Title}}</h1>
-      <a href="{{.BaseURL}}" class="back-link">← Back to Home</a>
+      <div class="header-actions">
+        <a href="{{.BaseURL}}" class="back-link">Back to Home</a>
+        <a href="/docs" class="back-link">API Docs</a>
+      </div>
     </div>
 
     {{if .Error}}
@@ -92,7 +95,12 @@
             {{end}} {{if .Metadata.AspectRatio}}
             <div class="metadata-item">
               <span class="metadata-label">Aspect Ratio:</span>
-              <span class="metadata-value">{{.Metadata.AspectRatio}}</span>
+              <span class="metadata-value"
+                >{{.Metadata.AspectRatio}}{{if .Metadata.AspectRatioFraction}}
+                <span class="badge badge-success"
+                  >{{.Metadata.AspectRatioFraction}}</span
+                >{{end}}</span
+              >
             </div>
             {{end}}
 

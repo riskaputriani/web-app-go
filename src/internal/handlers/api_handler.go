@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -204,8 +205,7 @@ func (h *APIHandler) processAPIUpload(fileHeader *multipart.FileHeader) (*models
 	}
 	defer file.Close()
 
-	data := make([]byte, fileHeader.Size)
-	_, err = file.Read(data)
+	data, err := io.ReadAll(file)
 	if err != nil {
 		return nil, fmt.Errorf("failed to read file: %v", err)
 	}

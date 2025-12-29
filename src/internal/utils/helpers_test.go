@@ -99,6 +99,30 @@ func TestCalculateAspectRatio(t *testing.T) {
 	}
 }
 
+func TestCalculateAspectRatioFraction(t *testing.T) {
+	tests := []struct {
+		name     string
+		width    int
+		height   int
+		expected string
+	}{
+		{"landscape", 1920, 1080, "16:9"},
+		{"portrait", 1080, 1920, "9:16"},
+		{"square", 1000, 1000, "1:1"},
+		{"classic", 1024, 768, "4:3"},
+		{"zero_height", 1920, 0, ""},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := CalculateAspectRatioFraction(tt.width, tt.height)
+			if result != tt.expected {
+				t.Errorf("CalculateAspectRatioFraction(%d, %d) = %s, want %s", tt.width, tt.height, result, tt.expected)
+			}
+		})
+	}
+}
+
 func TestCalculateMegapixels(t *testing.T) {
 	tests := []struct {
 		name     string

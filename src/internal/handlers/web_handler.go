@@ -1,8 +1,8 @@
 package handlers
 
 import (
-	"encoding/base64"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"net/http"
 	"net/url"
@@ -17,14 +17,16 @@ import (
 // WebHandler handles web interface requests
 type WebHandler struct {
 	imageService *services.ImageService
+	blobStore    *services.BlobStore
 	maxBytesMB   int
 	maxBytesRaw  int64
 }
 
 // NewWebHandler creates a new WebHandler
-func NewWebHandler(imageService *services.ImageService) *WebHandler {
+func NewWebHandler(imageService *services.ImageService, blobStore *services.BlobStore) *WebHandler {
 	return &WebHandler{
 		imageService: imageService,
+		blobStore:    blobStore,
 		maxBytesMB:   services.MaxImageBytes / (1 << 20),
 		maxBytesRaw:  services.MaxImageBytes,
 	}
@@ -33,6 +35,14 @@ func NewWebHandler(imageService *services.ImageService) *WebHandler {
 // HandleHome renders the home page
 func (h *WebHandler) HandleHome(c *fiber.Ctx) error {
 	return c.Render("home", fiber.Map{
+		"BaseURL": h.getBaseURL(c),
+	})
+}
+
+// HandleDocs renders the API documentation page
+func (h *WebHandler) HandleDocs(c *fiber.Ctx) error {
+	return c.Render("docs", fiber.Map{
+		"Title":   "API Docs",
 		"BaseURL": h.getBaseURL(c),
 	})
 }
@@ -146,6 +156,29 @@ func (h *WebHandler) HandleUpload(c *fiber.Ctx) error {
 	})
 }
 
+// HandleBlob serves temporary uploaded images.
+func (h *WebHandler) HandleBlob(c *fiber.Ctx) error {
+	if h.blobStore == nil {
+		return c.SendStatus(http.StatusNotFound)
+	}
+
+	blobID := c.Params("id")
+	if blobID == "" {
+		return c.SendStatus(http.StatusNotFound)
+	}
+
+	data, contentType, ok := h.blobStore.Get(blobID)
+	if !ok {
+		return c.SendStatus(http.StatusNotFound)
+	}
+
+	if contentType != "" {
+		c.Set("Content-Type", contentType)
+	}
+	c.Set("Cache-Control", "private, max-age=3600")
+	return c.Send(data)
+}
+
 // processUploadedFile processes a single uploaded file
 func (h *WebHandler) processUploadedFile(fileHeader *multipart.FileHeader) models.ImageResult {
 	result := models.ImageResult{
@@ -165,8 +198,7 @@ func (h *WebHandler) processUploadedFile(fileHeader *multipart.FileHeader) model
 	defer file.Close()
 
 	// Read file data
-	data := make([]byte, fileHeader.Size)
-	_, err = file.Read(data)
+	data, err := io.ReadAll(file)
 	if err != nil {
 		result.Error = fmt.Sprintf("Failed to read file: %v", err)
 		return result
@@ -187,11 +219,11 @@ func (h *WebHandler) processUploadedFile(fileHeader *multipart.FileHeader) model
 	meta := h.imageService.ProcessUpload(data, contentType, fileHeader.Filename)
 	result.Metadata = meta
 
-	// Create data URL for embedding
-	encoded := base64.StdEncoding.EncodeToString(data)
-	dataURL := fmt.Sprintf("data:%s;base64,%s", contentType, encoded)
-	result.EmbedURL = dataURL
-	result.IsBlob = true
+	if h.blobStore != nil {
+		blobID := h.blobStore.Put(data, contentType)
+		result.EmbedURL = "/blob/" + blobID
+		result.IsBlob = true
+	}
 
 	return result
 }
